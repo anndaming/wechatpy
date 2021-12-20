@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
     services:
       redis:
         image: redis
@@ -22,12 +22,18 @@ jobs:
           - 11211:11211
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v1
+      - uses: codespell-project/actions-codespell@master
+        with:
+          ignore_words_list: ba
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
+        shell: python
+        run: |
+            import sys
+            print(sys.version)
       - name: Install Dependencies
         run: |
           pip install poetry
@@ -52,8 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v1
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.8
       - name: Install Dependencies
@@ -64,7 +70,7 @@ jobs:
       - name: mypy
         run: |
           # run mypy, tee output to file
-          poetry run mypy --show-column-numbers --hide-error-context wechatpy | tee /tmp/mypy.out
+          poetry run mypy --non-interactive --install-types --show-column-numbers --hide-error-context wechatpy | tee /tmp/mypy.out
           exit_code="${PIPESTATUS[0]}"
           # analyze output
           poetry run python .github/workflows/github.py /tmp/mypy.out

@@ -57,7 +57,7 @@ class BaseField:
         raise NotImplementedError()
 
     def __getitem__(self, item):
-        """ 有时微信会推嵌套的消息，mypy 的类型检查会愣住，所以加个函数敷衍一下 mypy """
+        """有时微信会推嵌套的消息，mypy 的类型检查会愣住，所以加个函数敷衍一下 mypy"""
         raise NotImplementedError()
 
     def __repr__(self):
@@ -237,6 +237,18 @@ class ArticlesField(StringField):
             )
             for item in value["item"]
         ]
+
+
+class TaskCardField(StringField):
+    def to_xml(self, value):
+        value = self.converter(value)
+        return f"""<TaskCard>
+            <ReplaceName><![CDATA[{value}]]></ReplaceName>
+        </TaskCard>"""
+
+    @classmethod
+    def from_xml(cls, value):
+        return value["ReplaceName"]
 
 
 class Base64EncodeField(StringField):
